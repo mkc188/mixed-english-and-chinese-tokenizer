@@ -35,14 +35,14 @@ class MixedTokenizer {
     this.useSimplified = options.simplified || false;
   }
 
-  async tokenize(text) {
+  tokenize(text) {
     if (typeof text !== 'string') {
       return [];
     }
 
     text = contractions.expand(text);
 
-    let split = await this._splitSentence(text);
+    let split = this._splitSentence(text);
 
     if (containsChinese(text)) {
       let results = [];
@@ -50,7 +50,7 @@ class MixedTokenizer {
         if (containsChinese(section)) {
           // This is a continuous Chinese character string, may contain
           // multiple words:
-          let chineseTokens = await this._extractChineseTokens(section);
+          let chineseTokens = this._extractChineseTokens(section);
           results.push(...chineseTokens);
         } else {
           // This is just an English word:
@@ -63,12 +63,12 @@ class MixedTokenizer {
     }
   }
 
-  async lemmatize(text) {
+  lemmatize(text) {
     if (typeof text !== 'string') {
       return [];
     }
 
-    let tokens = await this.tokenize(text);
+    let tokens = this.tokenize(text);
     let lemmatizedMonograms = [];
 
     if (containsChinese(text)) {
@@ -76,12 +76,12 @@ class MixedTokenizer {
         if (containsChinese(token)) {
           lemmatizedMonograms.push(token);
         } else {
-          lemmatizedMonograms.push(...await this._lemmatizeSingleToken(token));
+          lemmatizedMonograms.push(...this._lemmatizeSingleToken(token));
         }
       }
     } else {
       for (let token of tokens) {
-        lemmatizedMonograms.push(...await this._lemmatizeSingleToken(token));
+        lemmatizedMonograms.push(...this._lemmatizeSingleToken(token));
       }
     }
 
@@ -93,23 +93,23 @@ class MixedTokenizer {
    * @param {string} token
    * @returns {string[]}
    */
-  async _lemmatizeSingleToken(token) {
+  _lemmatizeSingleToken(token) {
     if (this.lemmaCache) {
       if (this.lemmaCache[token]) {
         return [this.lemmaCache[token]];
       } else {
-        return await Lemmer.lemmatize([token]);
+        return Lemmer.lemmatize([token]);
       }
     } else {
-      return await Lemmer.lemmatize([token]);
+      return Lemmer.lemmatize([token]);
     }
   }
 
-  async _splitSentence(text) {
+  _splitSentence(text) {
     return text.match(ENGLISH_OR_CHINESE_REGEX) || [];
   }
 
-  async _extractChineseTokens(section) {
+  _extractChineseTokens(section) {
     return chineseTokenizer(section)
       .map(entry => this.useSimplified ? entry.simplified : entry.traditional);
   }
