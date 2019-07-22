@@ -12,7 +12,7 @@ const Lemmer = require('lemmer');
 
 // Anything which is not a digit or a non-word character, but include diacritics
 // because we want to match words like café:
-const ENGLISH_MONOGRAM_MATCHING_REGEX = /([^\d\W]|[À-ž])+/gi;
+const ENGLISH_MONOGRAM_MATCHING_REGEX = /([^\W]|[À-ž])+/gi;
 const ENGLISH_OR_CHINESE_REGEX =
   new RegExp(containsChinese.HAN_REGEX.source + '+|' + ENGLISH_MONOGRAM_MATCHING_REGEX.source, 'gi');
 
